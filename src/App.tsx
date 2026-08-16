@@ -128,7 +128,7 @@ const phighters: PhighterDefinition[] = [
     id: "sword",
     name: "Sword",
     file: "sword/icon.png",
-    color: "#ff4f64",
+    color: "#FF5959",
     role: "melee",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "sword/m2.png" },
@@ -141,7 +141,7 @@ const phighters: PhighterDefinition[] = [
     id: "skateboard",
     name: "Skateboard",
     file: "skateboard/icon.png",
-    color: "#ff3857",
+    color: "#FF0000",
     role: "melee",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "skateboard/m2.png" },
@@ -172,7 +172,7 @@ const phighters: PhighterDefinition[] = [
     id: "biograft",
     name: "Biograft",
     file: "biograft/icon.png",
-    color: "#ff7a1a",
+    color: "#FF6A00",
     role: "melee",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "biograft/m2.png" },
@@ -185,7 +185,7 @@ const phighters: PhighterDefinition[] = [
     id: "katana",
     name: "Katana",
     file: "katana/icon.png",
-    color: "#d93d4f",
+    color: "#AF2020",
     role: "melee",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "katana/m2.png" },
@@ -198,7 +198,7 @@ const phighters: PhighterDefinition[] = [
     id: "ban-hammer",
     name: "Ban Hammer",
     file: "ban-hammer/icon.png",
-    color: "#6e5bd6",
+    color: "#3A3A82",
     role: "melee",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "ban-hammer/m2.png" },
@@ -211,7 +211,7 @@ const phighters: PhighterDefinition[] = [
     id: "rocket",
     name: "Rocket",
     file: "rocket/icon.png",
-    color: "#4285f4",
+    color: "#4365B3",
     role: "ranged",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "rocket/m2.png" },
@@ -224,7 +224,7 @@ const phighters: PhighterDefinition[] = [
     id: "slingshot",
     name: "Slingshot",
     file: "slingshot/icon.png",
-    color: "#44bdd2",
+    color: "#4DA9C3",
     role: "ranged",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "slingshot/m2.png" },
@@ -237,7 +237,7 @@ const phighters: PhighterDefinition[] = [
     id: "hyperlaser",
     name: "Hyperlaser",
     file: "hyperlaser/icon.png",
-    color: "#536dfe",
+    color: "#2B90B4",
     role: "ranged",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "hyperlaser/m2.png" },
@@ -250,7 +250,7 @@ const phighters: PhighterDefinition[] = [
     id: "shuriken",
     name: "Shuriken",
     file: "shuriken/icon.png",
-    color: "#41b883",
+    color: "#7CC740",
     role: "ranged",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "shuriken/m2.png" },
@@ -263,7 +263,7 @@ const phighters: PhighterDefinition[] = [
     id: "scythe",
     name: "Scythe",
     file: "scythe/icon.png",
-    color: "#b64fc8",
+    color: "#268A78",
     role: "ranged",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "scythe/m2.png" },
@@ -296,7 +296,7 @@ const phighters: PhighterDefinition[] = [
     id: "medkit",
     name: "Medkit",
     file: "medkit/icon.png",
-    color: "#45c98a",
+    color: "#2CBFA2",
     role: "support",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "medkit/m2.png" },
@@ -309,7 +309,7 @@ const phighters: PhighterDefinition[] = [
     id: "boombox",
     name: "Boombox",
     file: "boombox/icon.png",
-    color: "#37c998",
+    color: "#97BF4B",
     role: "support",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "boombox/m2.png" },
@@ -322,7 +322,7 @@ const phighters: PhighterDefinition[] = [
     id: "subspace",
     name: "Subspace",
     file: "subspace/icon.png",
-    color: "#a64df4",
+    color: "#FF0066",
     role: "support",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "subspace/m2.png" },
@@ -335,7 +335,7 @@ const phighters: PhighterDefinition[] = [
     id: "vine-staff",
     name: "Vine Staff",
     file: "vine-staff/icon.png",
-    color: "#79c267",
+    color: "#FF5877",
     role: "support",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "vine-staff/m2.png" },
@@ -348,7 +348,7 @@ const phighters: PhighterDefinition[] = [
     id: "coil",
     name: "Coil",
     file: "coil/icon.png",
-    color: "#f0a43c",
+    color: "#FF8B35",
     role: "support",
     abilities: [
       { id: "m2", name: "M2", key: "M2", file: "coil/m2.png" },

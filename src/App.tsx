@@ -1747,7 +1747,7 @@ function App() {
                 {shapeKind !== "arrow" && (
                   <>
                     <div className="shape-border-row">
-                      <span>Border  </span>
+                      <h2>Border</h2>
                       <button
                         className={
                           shapeBorder ? "toggle-switch active" : "toggle-switch"

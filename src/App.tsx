@@ -22,7 +22,6 @@ import {
   Search,
   Shapes,
   Square,
-  RefreshCw,
   Trash2,
   Type,
   Upload,
@@ -33,9 +32,7 @@ import type { Tool } from "./types/planner";
 import {
   PlannerCanvas,
   type EraserMode,
-  type PlannerImageBackgroundShape,
   type PlannerImagePreset,
-  type PlannerImageTeamSwapRequest,
   type PlannerItemsByMap,
   type PlannerSelection,
   type ShapeKind,
@@ -45,23 +42,14 @@ const tools: {
   id: Tool;
   label: string;
   icon: typeof MousePointer2;
-  shortcut?: string;
 }[] = [
   { id: "select", label: "Select", icon: MousePointer2 },
-  { id: "pen", label: "Pen", icon: Pencil, shortcut: "B" },
-  { id: "arrow", label: "Shapes", icon: Shapes, shortcut: "S" },
-  { id: "eraser", label: "Eraser", icon: Eraser, shortcut: "E" },
-  { id: "text", label: "Text", icon: Type, shortcut: "T" },
-  { id: "image", label: "Image", icon: Image, shortcut: "I" },
+  { id: "pen", label: "Pen", icon: Pencil },
+  { id: "arrow", label: "Shapes", icon: Shapes },
+  { id: "eraser", label: "Eraser", icon: Eraser },
+  { id: "text", label: "Text", icon: Type },
+  { id: "image", label: "Image", icon: Image },
 ];
-
-const toolShortcuts: Record<string, Tool> = {
-  b: "pen",
-  i: "image",
-  s: "arrow",
-  e: "eraser",
-  t: "text",
-};
 
 const colors = ["#ff4f64", "#4285f4", "#ffffff"];
 
@@ -93,11 +81,6 @@ type PhighterDefinition = {
     file: string;
     key?: string;
   }[];
-  abilityModes?: {
-    id: string;
-    label: string;
-    files: Record<string, string>;
-  }[];
 };
 
 type PhighterRole = "melee" | "ranged" | "support";
@@ -109,7 +92,7 @@ const phighterRoles: { id: PhighterRole; label: string }[] = [
   { id: "support", label: "Support" },
 ];
 
-const abilityKeys = ["M2", "Q", "E", "F"];
+const abilityKeys = ["M1", "M2", "Q", "E", "F"];
 const PHIGHTER_DRAG_MIME = "application/x-phightplan-image";
 
 // Add another object here only after its image exists in public/maps.
@@ -124,273 +107,21 @@ const defaultPhases: PhaseDefinition[] = [
 
 // Put each Phighter's images in public/phighters/<phighter-name>.
 const phighters: PhighterDefinition[] = [
-  {
-    id: "sword",
-    name: "Sword",
-    file: "sword/icon.png",
-    color: "#FF5959",
-    role: "melee",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "sword/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "sword/q.png" },
-      { id: "e", name: "E", key: "E", file: "sword/e.png" },
-      { id: "f", name: "F", key: "F", file: "sword/f.png" },
-    ],
-  },
-  {
-    id: "skateboard",
-    name: "Skateboard",
-    file: "skateboard/icon.png",
-    color: "#FF0000",
-    role: "melee",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "skateboard/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "skateboard/q.png" },
-      { id: "e", name: "E", key: "E", file: "skateboard/e.png" },
-      { id: "f", name: "F", key: "F", file: "skateboard/f.png" },
-    ],
-    abilityModes: [
-      {
-        id: "on",
-        label: "On",
-        files: {
-          m2: "skateboard/m2-on.png",
-          q: "skateboard/q-on.png",
-        },
-      },
-      {
-        id: "off",
-        label: "Off",
-        files: {
-          m2: "skateboard/m2-off.png",
-          q: "skateboard/q-off.png",
-        },
-      },
-    ],
-  },
-  {
-    id: "biograft",
-    name: "Biograft",
-    file: "biograft/icon.png",
-    color: "#FF6A00",
-    role: "melee",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "biograft/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "biograft/q.png" },
-      { id: "e", name: "E", key: "E", file: "biograft/e.png" },
-      { id: "f", name: "F", key: "F", file: "biograft/f.png" },
-    ],
-  },
-  {
-    id: "katana",
-    name: "Katana",
-    file: "katana/icon.png",
-    color: "#AF2020",
-    role: "melee",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "katana/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "katana/q.png" },
-      { id: "e", name: "E", key: "E", file: "katana/e.png" },
-      { id: "f", name: "F", key: "F", file: "katana/f.png" },
-    ],
-  },
-  {
-    id: "ban-hammer",
-    name: "Ban Hammer",
-    file: "ban-hammer/icon.png",
-    color: "#3A3A82",
-    role: "melee",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "ban-hammer/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "ban-hammer/q.png" },
-      { id: "e", name: "E", key: "E", file: "ban-hammer/e.png" },
-      { id: "f", name: "F", key: "F", file: "ban-hammer/f.png" },
-    ],
-  },
-  {
-    id: "rocket",
-    name: "Rocket",
-    file: "rocket/icon.png",
-    color: "#4365B3",
-    role: "ranged",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "rocket/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "rocket/q.png" },
-      { id: "e", name: "E", key: "E", file: "rocket/e.png" },
-      { id: "f", name: "F", key: "F", file: "rocket/f.png" },
-    ],
-  },
-  {
-    id: "slingshot",
-    name: "Slingshot",
-    file: "slingshot/icon.png",
-    color: "#4DA9C3",
-    role: "ranged",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "slingshot/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "slingshot/q.png" },
-      { id: "e", name: "E", key: "E", file: "slingshot/e.png" },
-      { id: "f", name: "F", key: "F", file: "slingshot/f.png" },
-    ],
-  },
-  {
-    id: "hyperlaser",
-    name: "Hyperlaser",
-    file: "hyperlaser/icon.png",
-    color: "#2B90B4",
-    role: "ranged",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "hyperlaser/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "hyperlaser/q.png" },
-      { id: "e", name: "E", key: "E", file: "hyperlaser/e.png" },
-      { id: "f", name: "F", key: "F", file: "hyperlaser/f.png" },
-    ],
-  },
-  {
-    id: "shuriken",
-    name: "Shuriken",
-    file: "shuriken/icon.png",
-    color: "#7CC740",
-    role: "ranged",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "shuriken/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "shuriken/q.png" },
-      { id: "e", name: "E", key: "E", file: "shuriken/e.png" },
-      { id: "f", name: "F", key: "F", file: "shuriken/f.png" },
-    ],
-  },
-  {
-    id: "scythe",
-    name: "Scythe",
-    file: "scythe/icon.png",
-    color: "#268A78",
-    role: "ranged",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "scythe/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "scythe/q.png" },
-      { id: "e", name: "E", key: "E", file: "scythe/e.png" },
-      { id: "f", name: "F", key: "F", file: "scythe/f.png" },
-    ],
-    abilityModes: [
-      {
-        id: "rifle",
-        label: "Rifle",
-        files: {
-          q: "scythe/q-rifle.png",
-          e: "scythe/e-rifle.png",
-          f: "scythe/f-rifle.png",
-        },
-      },
-      {
-        id: "scythe",
-        label: "Scythe",
-        files: {
-          q: "scythe/q-scythe.png",
-          e: "scythe/e-scythe.png",
-          f: "scythe/f-scythe.png",
-        },
-      },
-    ],
-  },
-  {
-    id: "medkit",
-    name: "Medkit",
-    file: "medkit/icon.png",
-    color: "#2CBFA2",
-    role: "support",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "medkit/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "medkit/q.png" },
-      { id: "e", name: "E", key: "E", file: "medkit/e.png" },
-      { id: "f", name: "F", key: "F", file: "medkit/f.png" },
-    ],
-  },
-  {
-    id: "boombox",
-    name: "Boombox",
-    file: "boombox/icon.png",
-    color: "#97BF4B",
-    role: "support",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "boombox/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "boombox/q.png" },
-      { id: "e", name: "E", key: "E", file: "boombox/e.png" },
-      { id: "f", name: "F", key: "F", file: "boombox/f.png" },
-    ],
-  },
-  {
-    id: "subspace",
-    name: "Subspace",
-    file: "subspace/icon.png",
-    color: "#FF0066",
-    role: "support",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "subspace/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "subspace/q.png" },
-      { id: "e", name: "E", key: "E", file: "subspace/e.png" },
-      { id: "f", name: "F", key: "F", file: "subspace/f.png" },
-    ],
-  },
-  {
-    id: "vine-staff",
-    name: "Vine Staff",
-    file: "vine-staff/icon.png",
-    color: "#FF5877",
-    role: "support",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "vine-staff/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "vine-staff/q.png" },
-      { id: "e", name: "E", key: "E", file: "vine-staff/e.png" },
-      { id: "f", name: "F", key: "F", file: "vine-staff/f.png" },
-    ],
-  },
-  {
-    id: "coil",
-    name: "Coil",
-    file: "coil/icon.png",
-    color: "#FF8B35",
-    role: "support",
-    abilities: [
-      { id: "m2", name: "M2", key: "M2", file: "coil/m2.png" },
-      { id: "q", name: "Q", key: "Q", file: "coil/q.png" },
-      { id: "e", name: "E", key: "E", file: "coil/e.png" },
-      { id: "f", name: "F", key: "F", file: "coil/f.png" },
-    ],
-    abilityModes: [
-      {
-        id: "grav",
-        label: "Grav",
-        files: {
-          m2: "coil/m2-grav.png",
-          e: "coil/e-grav.png",
-        },
-      },
-      {
-        id: "regen",
-        label: "Regen",
-        files: {
-          m2: "coil/m2-regen.png",
-          e: "coil/e-regen.png",
-        },
-      },
-      {
-        id: "speed",
-        label: "Speed",
-        files: {
-          m2: "coil/m2-speed.png",
-          e: "coil/e-speed.png",
-        },
-      },
-      {
-        id: "ult",
-        label: "Ult",
-        files: {
-          m2: "coil/m2-ult.png",
-          e: "coil/e-ult.png",
-        },
-      },
-    ],
-  },
+  // Example:
+  // {
+  //   id: "skateboard",
+  //   name: "Skateboard",
+  //   file: "skateboard/icon.png",
+  //   color: "#ff4f64",
+  //   role: "melee",
+  //   abilities: [
+  //     { id: "primary", name: "Primary", key: "M1", file: "skateboard/primary.png" },
+  //     { id: "secondary", name: "Secondary", key: "M2", file: "skateboard/secondary.png" },
+  //     { id: "q", name: "Q", key: "Q", file: "skateboard/q.png" },
+  //     { id: "e", name: "E", key: "E", file: "skateboard/e.png" },
+  //     { id: "f", name: "F", key: "F", file: "skateboard/f.png" },
+  //   ],
+  // },
 ];
 
 const STORAGE_KEY = "phightplan-project-v1";
@@ -644,8 +375,6 @@ function App() {
   const [imagePreset, setImagePreset] = useState<PlannerImagePreset | null>(
     null,
   );
-  const [imageTeamSwapRequest, setImageTeamSwapRequest] =
-    useState<PlannerImageTeamSwapRequest | null>(null);
   const [selectedPhighterIds, setSelectedPhighterIds] = useState<
     Record<PhighterSide, string | null>
   >({
@@ -653,9 +382,6 @@ function App() {
     enemy: null,
   });
   const [phighterSide, setPhighterSide] = useState<PhighterSide>("ally");
-  const [abilityModeIndexes, setAbilityModeIndexes] = useState<
-    Record<string, number>
-  >({});
   const [phighterSearch, setPhighterSearch] = useState("");
   const [saveStatus, setSaveStatus] = useState<"saving" | "saved" | "failed">(
     "saved",
@@ -698,23 +424,9 @@ function App() {
   const showTextSize =
     activeTool === "text" ||
     (activeTool === "select" && selection?.type === "text");
-  const showToolOptions =
-    drawingTool || showShapeSettings || showTextSize || activeTool === "eraser";
   const selectedPhighterId = selectedPhighterIds[phighterSide];
   const selectedPhighter =
     phighters.find((phighter) => phighter.id === selectedPhighterId) ?? null;
-  const selectedAbilityModeIndex = selectedPhighter
-    ? (abilityModeIndexes[selectedPhighter.id] ?? 0)
-    : 0;
-  const selectedAbilityMode = selectedPhighter?.abilityModes?.length
-    ? selectedPhighter.abilityModes[
-        selectedAbilityModeIndex % selectedPhighter.abilityModes.length
-      ]
-    : null;
-  const selectedAbilities = selectedPhighter?.abilities.map((ability) => ({
-    ...ability,
-    file: selectedAbilityMode?.files[ability.id] ?? ability.file,
-  }));
   const normalizedPhighterSearch = phighterSearch.trim().toLowerCase();
   const filteredPhighters = phighters.filter((phighter) =>
     phighter.name.toLowerCase().includes(normalizedPhighterSearch),
@@ -728,20 +440,13 @@ function App() {
     }))
     .filter((group) => group.phighters.length > 0);
   const abilitySlots = Array.from(
-    { length: 4 },
-    (_, index) => selectedAbilities?.[index] ?? null,
+    { length: 5 },
+    (_, index) => selectedPhighter?.abilities[index] ?? null,
   );
 
   const phighterTokenColor = phighterSide === "ally" ? "#4285f4" : "#ff5b65";
 
-  type PlannerImageOptions = {
-    backgroundColor?: string;
-    backgroundShape?: PlannerImageBackgroundShape;
-    width?: number;
-    height?: number;
-  };
-
-  function placePlannerImage(src: string, options?: PlannerImageOptions) {
+  function placePlannerImage(src: string, backgroundColor?: string) {
     if (!selectedMap) {
       return;
     }
@@ -749,7 +454,7 @@ function App() {
     setImagePreset({
       requestId: crypto.randomUUID(),
       src,
-      ...options,
+      backgroundColor,
     });
     setActiveTool("image");
   }
@@ -757,25 +462,26 @@ function App() {
   function startPlannerImageDrag(
     event: ReactDragEvent<HTMLElement>,
     src: string,
-    options?: PlannerImageOptions,
+    options?: {
+      backgroundColor?: string;
+      size?: number;
+    },
   ) {
     if (!selectedMap) {
       event.preventDefault();
       return;
     }
 
-    const width = options?.width ?? 96;
-    const height = options?.height ?? width;
+    const size = options?.size ?? 96;
 
     event.dataTransfer.effectAllowed = "copy";
     event.dataTransfer.setData(
       PHIGHTER_DRAG_MIME,
       JSON.stringify({
         src,
-        width,
-        height,
+        width: size,
+        height: size,
         backgroundColor: options?.backgroundColor,
-        backgroundShape: options?.backgroundShape,
       }),
     );
   }
@@ -784,30 +490,6 @@ function App() {
     setSelectedPhighterIds((current) => ({
       ...current,
       [phighterSide]: phighterId,
-    }));
-  }
-
-  function swapSelectedPhighterTeam() {
-    const nextSide: PhighterSide = phighterSide === "ally" ? "enemy" : "ally";
-
-    setSelectedPhighterIds((current) => ({
-      ...current,
-      [nextSide]: current[phighterSide],
-    }));
-    setPhighterSide(nextSide);
-    setImageTeamSwapRequest({ requestId: crypto.randomUUID() });
-  }
-
-  function cycleSelectedPhighterAbilities() {
-    if (!selectedPhighter?.abilityModes?.length) {
-      return;
-    }
-
-    setAbilityModeIndexes((current) => ({
-      ...current,
-      [selectedPhighter.id]:
-        ((current[selectedPhighter.id] ?? 0) + 1) %
-        selectedPhighter.abilityModes!.length,
     }));
   }
 
@@ -857,49 +539,6 @@ function App() {
       setColorPickerOpen(false);
     }
   }, [drawingTool]);
-
-  useEffect(() => {
-    function selectToolWithKeyboard(event: KeyboardEvent) {
-      if (
-        event.ctrlKey ||
-        event.metaKey ||
-        event.altKey ||
-        event.repeat ||
-        !selectedMap
-      ) {
-        return;
-      }
-
-      const target = event.target as HTMLElement | null;
-
-      if (
-        target?.isContentEditable ||
-        target?.tagName === "INPUT" ||
-        target?.tagName === "TEXTAREA" ||
-        target?.tagName === "SELECT"
-      ) {
-        return;
-      }
-
-      const nextTool = toolShortcuts[event.key.toLowerCase()];
-
-      if (!nextTool) {
-        return;
-      }
-
-      event.preventDefault();
-      setImagePreset(null);
-
-      if (nextTool === "arrow") {
-        setShapeRotation(0);
-      }
-
-      setActiveTool(nextTool);
-    }
-
-    window.addEventListener("keydown", selectToolWithKeyboard);
-    return () => window.removeEventListener("keydown", selectToolWithKeyboard);
-  }, [selectedMap]);
 
   useEffect(() => {
     let favicon = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
@@ -1454,7 +1093,6 @@ function App() {
               textSizeGestureKey={textSizeGestureKey}
               shapeStyleGestureKey={shapeStyleGestureKey}
               imagePreset={imagePreset}
-              imageTeamSwapRequest={imageTeamSwapRequest}
               onToolChange={setActiveTool}
               onSelectionChange={handleSelectionChange}
             />
@@ -1540,12 +1178,12 @@ function App() {
           )}
         </section>
 
-        <aside className="tool-rail" aria-label="Planner tools">
+        <aside className="sidebar">
           <section className="sidebar-section">
             <h2>Tools</h2>
 
             <div className="tool-grid">
-              {tools.map(({ id, label, icon: Icon, shortcut }) => (
+              {tools.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   className={
@@ -1565,337 +1203,328 @@ function App() {
                 >
                   <Icon size={22} />
                   <span>{label}</span>
-                  {shortcut && <kbd>{shortcut}</kbd>}
                 </button>
               ))}
             </div>
           </section>
-        </aside>
 
-        {showToolOptions && (
-          <div className="tool-options-popover">
-            {drawingTool && (
-              <section
-                className={
-                  showShapeSettings && shapeKind !== "arrow"
-                    ? "sidebar-section drawing-settings color-only"
-                    : "sidebar-section drawing-settings"
-                }
-              >
-                <div className="setting-column color-setting">
-                  <h2>Color</h2>
+          {drawingTool && (
+            <section
+              className={
+                showShapeSettings && shapeKind !== "arrow"
+                  ? "sidebar-section drawing-settings color-only"
+                  : "sidebar-section drawing-settings"
+              }
+            >
+              <div className="setting-column color-setting">
+                <h2>Color</h2>
 
-                  <div ref={colorPickerRef} className="color-list">
-                    {colors.map((color) => (
-                      <button
-                        key={color}
-                        className={
-                          !usingCustomColor && activeColor === color
-                            ? "color-button active"
-                            : "color-button"
-                        }
-                        type="button"
-                        style={{ backgroundColor: color }}
-                        onClick={() => {
-                          beginShapeStyleGesture();
-                          setUsingCustomColor(false);
-                          setActiveColor(color);
-                          setColorPickerOpen(false);
-                        }}
-                        aria-label={`Select ${color}`}
-                      />
-                    ))}
-
+                <div ref={colorPickerRef} className="color-list">
+                  {colors.map((color) => (
                     <button
+                      key={color}
                       className={
-                        usingCustomColor
-                          ? "color-button custom-color-button active"
-                          : "color-button custom-color-button"
+                        !usingCustomColor && activeColor === color
+                          ? "color-button active"
+                          : "color-button"
                       }
                       type="button"
-                      style={{ backgroundColor: customColor }}
-                      aria-label="Choose custom color"
-                      aria-expanded={colorPickerOpen}
+                      style={{ backgroundColor: color }}
                       onClick={() => {
                         beginShapeStyleGesture();
-                        setUsingCustomColor(true);
-                        setActiveColor(customColor);
-                        setColorPickerOpen((open) => !open);
+                        setUsingCustomColor(false);
+                        setActiveColor(color);
+                        setColorPickerOpen(false);
                       }}
-                    >
-                      <Pipette size={11} />
-                    </button>
+                      aria-label={`Select ${color}`}
+                    />
+                  ))}
 
-                    {colorPickerOpen && (
-                      <div className="color-picker-popover">
-                        <div
-                          className="saturation-value-picker"
-                          style={{
-                            backgroundColor: `hsl(${customHsv.h} 100% 50%)`,
-                          }}
-                          onPointerDown={(event) => {
-                            beginShapeStyleGesture();
-                            event.currentTarget.setPointerCapture(
-                              event.pointerId,
-                            );
-                            updateSaturationAndValue(event);
-                          }}
-                          onPointerMove={(event) => {
-                            if (
-                              event.currentTarget.hasPointerCapture(
-                                event.pointerId,
-                              )
-                            ) {
-                              updateSaturationAndValue(event);
-                            }
-                          }}
-                          onPointerUp={(event) =>
-                            event.currentTarget.releasePointerCapture(
+                  <button
+                    className={
+                      usingCustomColor
+                        ? "color-button custom-color-button active"
+                        : "color-button custom-color-button"
+                    }
+                    type="button"
+                    style={{ backgroundColor: customColor }}
+                    aria-label="Choose custom color"
+                    aria-expanded={colorPickerOpen}
+                    onClick={() => {
+                      beginShapeStyleGesture();
+                      setUsingCustomColor(true);
+                      setActiveColor(customColor);
+                      setColorPickerOpen((open) => !open);
+                    }}
+                  >
+                    <Pipette size={11} />
+                  </button>
+
+                  {colorPickerOpen && (
+                    <div className="color-picker-popover">
+                      <div
+                        className="saturation-value-picker"
+                        style={{
+                          backgroundColor: `hsl(${customHsv.h} 100% 50%)`,
+                        }}
+                        onPointerDown={(event) => {
+                          beginShapeStyleGesture();
+                          event.currentTarget.setPointerCapture(
+                            event.pointerId,
+                          );
+                          updateSaturationAndValue(event);
+                        }}
+                        onPointerMove={(event) => {
+                          if (
+                            event.currentTarget.hasPointerCapture(
                               event.pointerId,
                             )
+                          ) {
+                            updateSaturationAndValue(event);
                           }
-                        >
-                          <span
-                            className="color-picker-handle"
-                            style={{
-                              left: `${customHsv.s * 100}%`,
-                              top: `${(1 - customHsv.v) * 100}%`,
-                              backgroundColor: customColor,
-                            }}
-                          />
-                        </div>
-
-                        <input
-                          className="hue-slider"
-                          type="range"
-                          min="0"
-                          max="359"
-                          step="1"
-                          value={customHsv.h}
-                          aria-label="Custom color hue"
-                          onPointerDown={beginShapeStyleGesture}
-                          onChange={(event) =>
-                            applyCustomColor({
-                              ...customHsv,
-                              h: Number(event.target.value),
-                            })
-                          }
-                        />
-
-                        <output className="custom-color-value">
-                          {customColor.toUpperCase()}
-                        </output>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {(!showShapeSettings || shapeKind === "arrow") && (
-                  <div className="setting-column width-setting">
-                    <div className="setting-heading">
-                      <h2>Width</h2>
-                    </div>
-
-                    <div className="slider-row">
-                      <input
-                        className="size-slider"
-                        type="range"
-                        min="2"
-                        max="24"
-                        step="1"
-                        value={strokeSize}
-                        onPointerDown={beginShapeStyleGesture}
-                        onChange={(event) =>
-                          setStrokeSize(Number(event.target.value))
-                        }
-                        aria-label="Stroke width"
-                      />
-                      <output className="slider-value">{strokeSize}px</output>
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {showShapeSettings && (
-              <section className="sidebar-section shape-settings">
-                <h2>{selectedShape ? `Selected ${shapeKind}` : "Shape"}</h2>
-
-                {activeTool === "arrow" && (
-                  <div
-                    className="segmented-control shape-kind-control"
-                    aria-label="Shape type"
-                  >
-                    {(
-                      [
-                        { id: "arrow", label: "Arrow", icon: MoveRight },
-                        { id: "circle", label: "Circle", icon: Circle },
-                        { id: "rectangle", label: "Rectangle", icon: Square },
-                      ] as const
-                    ).map(({ id, label, icon: Icon }) => (
-                      <button
-                        key={id}
-                        className={shapeKind === id ? "active" : ""}
-                        type="button"
-                        onClick={() => setShapeKind(id)}
-                      >
-                        <Icon size={15} />
-                        <span>{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {shapeKind !== "arrow" && (
-                  <>
-                    <div className="shape-border-row">
-                      <span>Border</span>
-                      <button
-                        className={
-                          shapeBorder ? "toggle-switch active" : "toggle-switch"
-                        }
-                        type="button"
-                        role="switch"
-                        aria-checked={shapeBorder}
-                        onClick={() => {
-                          beginShapeStyleGesture();
-                          setShapeBorder((enabled) => !enabled);
                         }}
+                        onPointerUp={(event) =>
+                          event.currentTarget.releasePointerCapture(
+                            event.pointerId,
+                          )
+                        }
                       >
-                        <span />
-                      </button>
-                    </div>
+                        <span
+                          className="color-picker-handle"
+                          style={{
+                            left: `${customHsv.s * 100}%`,
+                            top: `${(1 - customHsv.v) * 100}%`,
+                            backgroundColor: customColor,
+                          }}
+                        />
+                      </div>
 
-                    <div className="setting-heading shape-attribute-heading">
-                      <span>Border width</span>
-                    </div>
-
-                    <div className="slider-row">
                       <input
-                        className="size-slider"
+                        className="hue-slider"
                         type="range"
-                        min="1"
-                        max="24"
+                        min="0"
+                        max="359"
                         step="1"
-                        value={strokeSize}
+                        value={customHsv.h}
+                        aria-label="Custom color hue"
                         onPointerDown={beginShapeStyleGesture}
                         onChange={(event) =>
-                          setStrokeSize(Number(event.target.value))
+                          applyCustomColor({
+                            ...customHsv,
+                            h: Number(event.target.value),
+                          })
                         }
-                        aria-label="Shape border width"
                       />
-                      <output className="slider-value">{strokeSize}px</output>
+
+                      <output className="custom-color-value">
+                        {customColor.toUpperCase()}
+                      </output>
                     </div>
-                  </>
-                )}
-
-                <div className="setting-heading shape-opacity-heading">
-                  <span>
-                    {shapeKind === "arrow" ? "Opacity" : "Fill opacity"}
-                  </span>
+                  )}
                 </div>
+              </div>
 
-                <div className="slider-row">
-                  <input
-                    className="size-slider"
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={Math.round(shapeOpacity * 100)}
-                    onPointerDown={beginShapeStyleGesture}
-                    onChange={(event) =>
-                      setShapeOpacity(Number(event.target.value) / 100)
-                    }
-                    aria-label="Shape opacity"
-                  />
-                  <output className="slider-value">
-                    {Math.round(shapeOpacity * 100)}%
-                  </output>
+              {(!showShapeSettings || shapeKind === "arrow") && (
+                <div className="setting-column width-setting">
+                  <div className="setting-heading">
+                    <h2>Width</h2>
+                  </div>
+
+                  <div className="slider-row">
+                    <input
+                      className="size-slider"
+                      type="range"
+                      min="2"
+                      max="24"
+                      step="1"
+                      value={strokeSize}
+                      onPointerDown={beginShapeStyleGesture}
+                      onChange={(event) =>
+                        setStrokeSize(Number(event.target.value))
+                      }
+                      aria-label="Stroke width"
+                    />
+                    <output className="slider-value">{strokeSize}px</output>
+                  </div>
                 </div>
-              </section>
-            )}
+              )}
+            </section>
+          )}
 
-            {showTextSize && (
-              <section className="sidebar-section">
-                <div className="setting-heading">
-                  <h2>Text size</h2>
+          {showShapeSettings && (
+            <section className="sidebar-section shape-settings">
+              <h2>{selectedShape ? `Selected ${shapeKind}` : "Shape"}</h2>
+
+              {activeTool === "arrow" && (
+                <div
+                  className="segmented-control shape-kind-control"
+                  aria-label="Shape type"
+                >
+                  {(
+                    [
+                      { id: "arrow", label: "Arrow", icon: MoveRight },
+                      { id: "circle", label: "Circle", icon: Circle },
+                      { id: "rectangle", label: "Rectangle", icon: Square },
+                    ] as const
+                  ).map(({ id, label, icon: Icon }) => (
+                    <button
+                      key={id}
+                      className={shapeKind === id ? "active" : ""}
+                      type="button"
+                      onClick={() => setShapeKind(id)}
+                    >
+                      <Icon size={15} />
+                      <span>{label}</span>
+                    </button>
+                  ))}
                 </div>
+              )}
 
-                <div className="slider-row">
-                  <input
-                    className="size-slider"
-                    type="range"
-                    min="12"
-                    max="72"
-                    step="1"
-                    value={textSize}
-                    onPointerDown={() =>
-                      setTextSizeGestureKey((current) => current + 1)
-                    }
-                    onFocus={() =>
-                      setTextSizeGestureKey((current) => current + 1)
-                    }
-                    onChange={(event) =>
-                      setTextSize(Number(event.target.value))
-                    }
-                    aria-label="Text size"
-                  />
-                  <output className="slider-value">{textSize}px</output>
-                </div>
-              </section>
-            )}
+              {shapeKind !== "arrow" && (
+                <>
+                  <div className="shape-border-row">
+                    <span>Border</span>
+                    <button
+                      className={
+                        shapeBorder ? "toggle-switch active" : "toggle-switch"
+                      }
+                      type="button"
+                      role="switch"
+                      aria-checked={shapeBorder}
+                      onClick={() => {
+                        beginShapeStyleGesture();
+                        setShapeBorder((enabled) => !enabled);
+                      }}
+                    >
+                      <span />
+                    </button>
+                  </div>
 
-            {activeTool === "eraser" && (
-              <section className="sidebar-section eraser-settings">
-                <h2>Eraser</h2>
+                  <div className="setting-heading shape-attribute-heading">
+                    <span>Border width</span>
+                  </div>
 
-                <div className="segmented-control" aria-label="Eraser mode">
-                  <button
-                    className={eraserMode === "stroke" ? "active" : ""}
-                    type="button"
-                    onClick={() => setEraserMode("stroke")}
-                  >
-                    Stroke
-                  </button>
-                  <button
-                    className={eraserMode === "area" ? "active" : ""}
-                    type="button"
-                    onClick={() => setEraserMode("area")}
-                  >
-                    Area
-                  </button>
-                </div>
+                  <div className="slider-row">
+                    <input
+                      className="size-slider"
+                      type="range"
+                      min="1"
+                      max="24"
+                      step="1"
+                      value={strokeSize}
+                      onPointerDown={beginShapeStyleGesture}
+                      onChange={(event) =>
+                        setStrokeSize(Number(event.target.value))
+                      }
+                      aria-label="Shape border width"
+                    />
+                    <output className="slider-value">{strokeSize}px</output>
+                  </div>
+                </>
+              )}
 
-                {eraserMode === "area" && (
-                  <>
-                    <div className="setting-heading eraser-size-heading">
-                      <span>Size</span>
-                    </div>
+              <div className="setting-heading shape-opacity-heading">
+                <span>
+                  {shapeKind === "arrow" ? "Opacity" : "Fill opacity"}
+                </span>
+              </div>
 
-                    <div className="slider-row">
-                      <input
-                        className="size-slider"
-                        type="range"
-                        min="12"
-                        max="140"
-                        step="2"
-                        value={eraserSize}
-                        onChange={(event) =>
-                          setEraserSize(Number(event.target.value))
-                        }
-                        aria-label="Eraser size"
-                      />
-                      <output className="slider-value">{eraserSize}px</output>
-                    </div>
-                  </>
-                )}
-              </section>
-            )}
-          </div>
-        )}
+              <div className="slider-row">
+                <input
+                  className="size-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={Math.round(shapeOpacity * 100)}
+                  onPointerDown={beginShapeStyleGesture}
+                  onChange={(event) =>
+                    setShapeOpacity(Number(event.target.value) / 100)
+                  }
+                  aria-label="Shape opacity"
+                />
+                <output className="slider-value">
+                  {Math.round(shapeOpacity * 100)}%
+                </output>
+              </div>
+            </section>
+          )}
 
-        <aside className="sidebar phighter-sidebar">
+          {showTextSize && (
+            <section className="sidebar-section">
+              <div className="setting-heading">
+                <h2>Text size</h2>
+              </div>
+
+              <div className="slider-row">
+                <input
+                  className="size-slider"
+                  type="range"
+                  min="12"
+                  max="72"
+                  step="1"
+                  value={textSize}
+                  onPointerDown={() =>
+                    setTextSizeGestureKey((current) => current + 1)
+                  }
+                  onFocus={() =>
+                    setTextSizeGestureKey((current) => current + 1)
+                  }
+                  onChange={(event) => setTextSize(Number(event.target.value))}
+                  aria-label="Text size"
+                />
+                <output className="slider-value">{textSize}px</output>
+              </div>
+            </section>
+          )}
+
+          {activeTool === "eraser" && (
+            <section className="sidebar-section eraser-settings">
+              <h2>Eraser</h2>
+
+              <div className="segmented-control" aria-label="Eraser mode">
+                <button
+                  className={eraserMode === "stroke" ? "active" : ""}
+                  type="button"
+                  onClick={() => setEraserMode("stroke")}
+                >
+                  Stroke
+                </button>
+                <button
+                  className={eraserMode === "area" ? "active" : ""}
+                  type="button"
+                  onClick={() => setEraserMode("area")}
+                >
+                  Area
+                </button>
+              </div>
+
+              {eraserMode === "area" && (
+                <>
+                  <div className="setting-heading eraser-size-heading">
+                    <span>Size</span>
+                  </div>
+
+                  <div className="slider-row">
+                    <input
+                      className="size-slider"
+                      type="range"
+                      min="12"
+                      max="140"
+                      step="2"
+                      value={eraserSize}
+                      onChange={(event) =>
+                        setEraserSize(Number(event.target.value))
+                      }
+                      aria-label="Eraser size"
+                    />
+                    <output className="slider-value">{eraserSize}px</output>
+                  </div>
+                </>
+              )}
+            </section>
+          )}
+
           <section className="sidebar-section phighter-roster-section">
             <div className="phighter-panel-heading">
               <h2>Phighters</h2>
@@ -1940,6 +1569,7 @@ function App() {
                 <div className="phighter-role-group" key={group.id}>
                   <div className="phighter-role-heading">
                     <span>{group.label}</span>
+                    <span>{group.phighters.length}</span>
                     <i />
                   </div>
 
@@ -1960,9 +1590,7 @@ function App() {
                             selectPhighter(phighter.id);
                             startPlannerImageDrag(event, src, {
                               backgroundColor: phighterTokenColor,
-                              backgroundShape: "circle",
-                              width: 112,
-                              height: 112,
+                              size: 112,
                             });
                           }}
                         >
@@ -1972,11 +1600,18 @@ function App() {
                             aria-pressed={selected}
                             onClick={() => selectPhighter(phighter.id)}
                           >
-                            <span className="phighter-portrait">
+                            <span
+                              className="phighter-portrait"
+                              style={{
+                                borderColor: phighter.color,
+                                backgroundColor: phighterTokenColor,
+                              }}
+                            >
                               <img src={src} alt="" draggable={false} />
                             </span>
                             <span className="phighter-row-copy">
                               <strong>{phighter.name}</strong>
+                              <small>{phighter.role ?? "melee"}</small>
                             </span>
                           </button>
 
@@ -1988,12 +1623,7 @@ function App() {
                             aria-label={`Place ${phighter.name}`}
                             onClick={() => {
                               selectPhighter(phighter.id);
-                              placePlannerImage(src, {
-                                backgroundColor: phighterTokenColor,
-                                backgroundShape: "circle",
-                                width: 112,
-                                height: 112,
-                              });
+                              placePlannerImage(src, phighterTokenColor);
                             }}
                           >
                             +
@@ -2015,16 +1645,16 @@ function App() {
             </div>
 
             <div className="selected-phighter-panel">
-              <div
-                className={
-                  selectedAbilityMode
-                    ? "selected-phighter-summary has-ability-cycle"
-                    : "selected-phighter-summary"
-                }
-              >
+              <div className="selected-phighter-summary">
                 {selectedPhighter ? (
                   <>
-                    <span className="selected-phighter-portrait">
+                    <span
+                      className="selected-phighter-portrait"
+                      style={{
+                        borderColor: selectedPhighter.color,
+                        backgroundColor: phighterTokenColor,
+                      }}
+                    >
                       <img
                         src={`${import.meta.env.BASE_URL}phighters/${selectedPhighter.file}`}
                         alt=""
@@ -2036,32 +1666,23 @@ function App() {
                       <small>Selected</small>
                       <strong>{selectedPhighter.name}</strong>
                       <span>
-                        {phighterSide}
-                        {selectedAbilityMode
-                          ? ` · ${selectedAbilityMode.label}`
-                          : ""}
+                        {phighterSide} / {selectedPhighter.role ?? "melee"}
                       </span>
                     </span>
 
                     <button
                       className="place-phighter-button"
                       type="button"
-                      onClick={swapSelectedPhighterTeam}
+                      disabled={!selectedMap}
+                      onClick={() =>
+                        placePlannerImage(
+                          `${import.meta.env.BASE_URL}phighters/${selectedPhighter.file}`,
+                          phighterTokenColor,
+                        )
+                      }
                     >
-                      Swap
+                      Place
                     </button>
-
-                    {selectedAbilityMode && (
-                      <button
-                        className="cycle-ability-button"
-                        type="button"
-                        title={`Cycle ${selectedPhighter.name} ability mode`}
-                        aria-label={`Cycle ${selectedPhighter.name} ability mode. Current mode: ${selectedAbilityMode.label}`}
-                        onClick={cycleSelectedPhighterAbilities}
-                      >
-                        <RefreshCw size={15} />
-                      </button>
-                    )}
 
                     <button
                       className="clear-phighter-button"
@@ -2101,24 +1722,13 @@ function App() {
                       type="button"
                       disabled={!selectedMap}
                       draggable={Boolean(selectedMap)}
+                      title={`Place ${selectedPhighter.name} ${ability.name}`}
                       aria-label={`Place ${selectedPhighter.name} ${ability.name}`}
                       style={{ borderColor: selectedPhighter.color }}
                       onDragStart={(event) =>
-                        startPlannerImageDrag(event, src, {
-                          backgroundColor: phighterTokenColor,
-                          backgroundShape: "rounded-rect",
-                          width: 96,
-                          height: 96,
-                        })
+                        startPlannerImageDrag(event, src, { size: 88 })
                       }
-                      onClick={() =>
-                        placePlannerImage(src, {
-                          backgroundColor: phighterTokenColor,
-                          backgroundShape: "rounded-rect",
-                          width: 96,
-                          height: 96,
-                        })
-                      }
+                      onClick={() => placePlannerImage(src)}
                     >
                       <img src={src} alt="" draggable={false} />
                       <span className="ability-key">
